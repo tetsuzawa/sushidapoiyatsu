@@ -1,0 +1,20 @@
+body {
+  font-family: "Arial", sans-serif;
+  text-align: center;
+}
+
+#typing-area {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 10px;
+}
+
+input[type="text"] {
+  font-size: 18px;
+  margin-top: 20px;
+  width: 300px;
+}
+
+#stats {
+  margin-top: 30px;
+}
