@@ -1,16 +1,31 @@
-const words = ["寿司", "刺身", "鮨", "鯖", "軍艦"]; // タイピング練習用の言葉
-const romajiWords = ["sushi", "sashimi", "sushi", "saba", "gunkan"]; // ローマ字表記
+const words = [
+  "寿司", "刺身", "鮨", "鯖", "軍艦", "天ぷら", "切り身", "握り", "焼魚", "海老",
+  "マグロ", "タコ", "イカ", "サーモン", "ハマチ", "ワカメ", "カンパチ", "カキ", "ウニ", "イクラ"
+];
+const romajiWords = [
+  "sushi", "sashimi", "sushi", "saba", "gunkan", "tempura", "kirimono", "nigiri", "yakizakana", "ebi",
+  "maguro", "tako", "ika", "salmon", "hamachi", "wakame", "kanpachi", "kaki", "uni", "ikura"
+];
+const menu = document.getElementById("menu");
+const game = document.getElementById("game");
+const result = document.getElementById("result");
 const currentWord = document.getElementById("current-word");
 const romajiWord = document.getElementById("romaji-word");
 const timer = document.getElementById("timer");
 const progress = document.getElementById("progress");
 const score = document.getElementById("score");
+const finalScore = document.getElementById("final-score");
+const startButton = document.getElementById("start-game");
+const restartButton = document.getElementById("restart-game");
 
 let timeLeft = 60;
 let correctWords = 0;
 let activeWord = "";
 let activeRomaji = "";
 let currentCharIndex = 0;
+let scoreMultiplier = 1;
+let consecutiveCorrect = 0;
+let timeBonus = 0;
 
 function pickRandomWord() {
   const randomIndex = Math.floor(Math.random() * words.length);
@@ -44,13 +59,15 @@ function updateStats() {
 }
 
 function startTimer() {
-  setInterval(() => {
+  const timerId = setInterval(() => {
     if (timeLeft > 0) {
       timeLeft--;
+      updateStats();
     } else {
+      clearInterval(timerId);
       document.removeEventListener("keypress", handleKeyPress);
+      showResult();
     }
-    updateStats();
   }, 1000);
 }
 
@@ -61,13 +78,52 @@ function handleKeyPress(e) {
     updateHighlight();
 
     if (currentCharIndex === activeRomaji.length) {
-      correctWords++;
+      correctWords += activeRomaji.length * scoreMultiplier;
+      consecutiveCorrect++;
+      timeBonus = Math.min(consecutiveCorrect, 5);
+      timeLeft += timeBonus;
       showNextWord();
+      updateStats();
     }
+  } else {
+    consecutiveCorrect = 0;
   }
 }
 
-showNextWord();
-updateHighlight();
-startTimer();
-document.addEventListener("keypress", handleKeyPress);
+function showMenu() {
+  menu.style.display = "block";
+  game.style.display = "none";
+  result.style.display = "none";
+}
+
+function showGame() {
+  menu.style.display = "none";
+  game.style.display = "block";
+  result.style.display = "none";
+}
+
+function showResult() {
+  menu.style.display = "none";
+  game.style.display = "none";
+  result.style.display = "block";
+  finalScore.innerText = correctWords;
+}
+
+startButton.addEventListener("click", () => {
+  showGame();
+  showNextWord();
+  startTimer();
+  document.addEventListener("keypress", handleKeyPress);
+});
+
+restartButton.addEventListener("click", () => {
+  timeLeft = 60;
+  correctWords = 0;
+  consecutiveCorrect = 0;
+  showGame();
+  showNextWord();
+  startTimer();
+  document.addEventListener("keypress", handleKeyPress);
+});
+
+showMenu();
