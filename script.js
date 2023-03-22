@@ -2,7 +2,6 @@ const words = ["寿司", "刺身", "鮨", "鯖", "軍艦"]; // タイピング�
 const romajiWords = ["sushi", "sashimi", "sushi", "saba", "gunkan"]; // ローマ字表記
 const currentWord = document.getElementById("current-word");
 const romajiWord = document.getElementById("romaji-word");
-const inputField = document.getElementById("input-field");
 const timer = document.getElementById("timer");
 const progress = document.getElementById("progress");
 const score = document.getElementById("score");
@@ -11,6 +10,7 @@ let timeLeft = 60;
 let correctWords = 0;
 let activeWord = "";
 let activeRomaji = "";
+let currentCharIndex = 0;
 
 function pickRandomWord() {
   const randomIndex = Math.floor(Math.random() * words.length);
@@ -23,15 +23,13 @@ function showNextWord() {
   activeRomaji = nextWord.romaji;
   currentWord.innerText = activeWord;
   romajiWord.innerHTML = activeRomaji.split('').map(char => `<span>${char}</span>`).join('');
-  inputField.value = "";
+  currentCharIndex = 0;
 }
 
 function updateHighlight() {
-  const input = inputField.value;
   const romajiChars = romajiWord.getElementsByTagName("span");
-
   for (let i = 0; i < romajiChars.length; i++) {
-    if (input[i] === activeRomaji[i]) {
+    if (i < currentCharIndex) {
       romajiChars[i].classList.add("highlight");
     } else {
       romajiChars[i].classList.remove("highlight");
@@ -50,20 +48,26 @@ function startTimer() {
     if (timeLeft > 0) {
       timeLeft--;
     } else {
-      inputField.disabled = true;
+      document.removeEventListener("keypress", handleKeyPress);
     }
     updateStats();
   }, 1000);
 }
 
-inputField.addEventListener("input", () => {
-  updateHighlight();
+function handleKeyPress(e) {
+  const input = e.key;
+  if (input === activeRomaji[currentCharIndex]) {
+    currentCharIndex++;
+    updateHighlight();
 
-  if (inputField.value === activeRomaji) {
-    correctWords++;
-    showNextWord();
+    if (currentCharIndex === activeRomaji.length) {
+      correctWords++;
+      showNextWord();
+    }
   }
-});
+}
 
 showNextWord();
+updateHighlight();
 startTimer();
+document.addEventListener("keypress", handleKeyPress);
