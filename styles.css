@@ -18,3 +18,11 @@ input[type="text"] {
 #stats {
   margin-top: 30px;
 }
+
+.romaji {
+  color: #777;
+}
+
+.highlight {
+  background-color: yellow;
+}
